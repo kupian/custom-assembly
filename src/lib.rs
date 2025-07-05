@@ -57,6 +57,7 @@ enum Instruction {
     Jlz,
 }
 
+#[derive(Debug, PartialEq, Eq)]
 struct Cpu {
     instructions: Vec<Instruction>,
     labels: HashMap<String, usize>,
@@ -65,6 +66,15 @@ struct Cpu {
 }
 
 impl Cpu {
+    fn build() -> Self {
+        Cpu {
+            instructions: Vec::new(),
+            labels: HashMap::new(),
+            memory: Vec::new(),
+            registers: [0; 11],
+        }
+    }
+
     fn write_reg(&mut self, reg: Register, val: u16) {
         self.registers[reg as usize] = val;
     }
@@ -157,12 +167,7 @@ pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
     4. iterate through the instruction enums and delegate required action accordingly
     */
 
-    let mut cpu = Cpu {
-        instructions: Vec::new(),
-        labels: HashMap::new(),
-        memory: Vec::new(),
-        registers: [0; 11],
-    };
+    let mut cpu = Cpu::build();
 
     let code = fs::read_to_string(config.path).expect("Could not read file");
 
@@ -182,7 +187,7 @@ pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
 
         match parsed {
             Line::Label(label) => {
-                cpu.labels.insert(label, cpu.instructions.len() - 1);
+                cpu.labels.insert(label, cpu.instructions.len());
             }
             Line::Instruction(instruction) => {
                 cpu.instructions.push(instruction);
@@ -190,6 +195,8 @@ pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
             _ => {}
         }
     }
+
+    println!("{cpu:?}");
 
     Ok(())
 }
