@@ -5,7 +5,7 @@ use std::{collections::HashMap, error::Error};
 pub struct Cpu {
     pub instructions: Vec<Instruction>,
     pub labels: HashMap<String, usize>,
-    pub memory: Vec<u16>,
+    pub memory: [u16; u16::MAX as usize],
     pub registers: [u16; 11],
 }
 
@@ -14,7 +14,7 @@ impl Cpu {
         Cpu {
             instructions: Vec::new(),
             labels: HashMap::new(),
-            memory: Vec::new(),
+            memory: [0; u16::MAX as usize],
             registers: [0; 11],
         }
     }
@@ -72,15 +72,27 @@ impl Cpu {
         Ok(())
     }
 
+    pub fn execute_one(&mut self) -> Result<(), Box<dyn Error>> {
+        let instruction = self
+            .instructions
+            .first()
+            .ok_or("No instruction to execute")?;
+
+        match instruction {
+            Instruction::Add(op) => self.add(*op)?,
+            Instruction::Sub(op) => self.sub(*op)?,
+            Instruction::Mov(src, dest) => self.mov(*src, *dest)?,
+            _ => return Err("Unsupported instruction: {instruction:?}".into()),
+        };
+
+        self.instructions.remove(0);
+
+        Ok(())
+    }
+
     pub fn execute(&mut self) -> Result<(), Box<dyn Error>> {
-        for i in 0..self.instructions.len() {
-            let instruction = &self.instructions[i];
-            match instruction {
-                Instruction::Add(op) => self.add(*op)?,
-                Instruction::Sub(op) => self.sub(*op)?,
-                Instruction::Mov(src, dest) => self.mov(*src, *dest)?,
-                _ => return Err("Unsupported instruction: {instruction:?}".into()),
-            }
+        for _ in 0..self.instructions.len() {
+            self.execute_one()?;
         }
         Ok(())
     }
