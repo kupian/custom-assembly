@@ -1,4 +1,4 @@
-use custom_assembly::Config;
+use custom_assembly::types::Config;
 use std::env;
 use std::process;
 
