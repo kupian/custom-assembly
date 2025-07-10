@@ -78,6 +78,8 @@ impl Cpu {
             .first()
             .ok_or("No instruction to execute")?;
 
+        println!("{:?}", instruction);
+
         match instruction {
             Instruction::Add(op) => self.add(*op)?,
             Instruction::Sub(op) => self.sub(*op)?,
