@@ -24,6 +24,7 @@ pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
             let event = read()?;
             if event == Event::Key(KeyCode::Char('s').into()) {
                 cpu.execute_one()?;
+                println!("{:?}", cpu.registers);
             }
 
             if event == Event::Key(KeyCode::Char('q').into()) {
